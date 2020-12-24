@@ -3,6 +3,9 @@
 ```
 Usage: sudo ./packet_sniffer
 
+Options:
+	-C: color flag. Use to color code output.
+
 ```
 # Purpose
 
