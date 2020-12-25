@@ -1,7 +1,7 @@
 ﻿# Usage
 
 ```
-Usage: sudo ./packet_sniffer
+Usage: sudo ./packet_sniffer [-C]
 
 Options:
 	-C: color flag. Use to color code output.
