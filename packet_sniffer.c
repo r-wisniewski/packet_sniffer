@@ -1,9 +1,10 @@
 /*************************************************************
 *   Author: Robin Wisniewski, wisniewski.ro@gmail.com
-*   Usage: sudo ./packet_sniffer [-C]
+*   Usage: sudo ./packet_sniffer [-C] [-P]
 *
 *	Option(s):
 *		-C: Color code output
+*		-P: Put interface into promiscuous mode
 */
 
 #include <stdio.h>
@@ -14,6 +15,8 @@
 #include <arpa/inet.h>
 #include <errno.h>
 #include <string.h>
+#include <linux/if_packet.h>
+#include <net/ethernet.h>
 
 //include header files that define ethernet, IP, UDP and TDP headers
 #include <linux/if_ether.h>
@@ -25,13 +28,6 @@ typedef enum {false, true} bool;
 
 int main(int argc, char *argv[])
 {   
-	bool color = false;
-	if(argc > 1){
-		if(strncmp(argv[1],"-C",2) == 0){
-			color = true;
-		}
-	}
-
 	//AF_PACKET    Low-level packet interface
 	//SOCK_RAW	Provides raw network protocol access
 	//ETH_P_ALL	 Internet Protocol packet
@@ -44,6 +40,36 @@ int main(int argc, char *argv[])
 		perror("Error creating socket");
 		exit(1);
 	}
+	
+	//Set appropriate options
+	bool color = false;
+	struct packet_mreq mreq;
+	mreq.mr_ifindex = 2;
+	mreq.mr_type = PACKET_MR_PROMISC;
+	if(argc == 2){
+		if(strncmp(argv[1],"-C",2) == 0){
+			color = true;
+		}
+		else if(strncmp(argv[1],"-P",2) == 0){
+			if (setsockopt(raw_socket,SOL_PACKET,PACKET_ADD_MEMBERSHIP,&mreq,sizeof(mreq)) != 0 ){
+				perror("Error putting interface into promiscuous mode. ");
+				exit(1);
+			}
+		}
+	}
+	//Both color and promiscuous mode flags are on
+	if(argc == 3){
+		//Check to ensure flags are set
+		if(strncmp(argv[1],"-C",2) == 0 || strncmp(argv[2],"-C",2) == 0){
+			color = true;
+		}
+		if(strncmp(argv[1],"-P",2) == 0 || strncmp(argv[2],"-P",2) == 0){
+			if (setsockopt(raw_socket,SOL_PACKET,PACKET_ADD_MEMBERSHIP,&mreq,sizeof(mreq)) != 0 ){
+				perror("Error putting interface into promiscuous mode. ");
+				exit(1);
+				}
+			}
+		}
 
 	//Create buffer to hold the packet information
 	//Max packet size is 65535 bytes
@@ -255,4 +281,3 @@ int main(int argc, char *argv[])
 	return 0;
 
 }
-

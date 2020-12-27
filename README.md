@@ -1,16 +1,23 @@
 ﻿# Usage
 
 ```
-Usage: sudo ./packet_sniffer [-C]
+Usage: sudo ./packet_sniffer [-C] [-P]
 
 Options:
 	-C: color flag. Use to color code output.
+	-P: Put interface into promiscuous mode.
 ```
 # Purpose
 
 IP packet sniffer that outputs basic information about captured packets.
 
-# Additional Information
+If the interface that should be put into promiscuous mode is not interface 2, replace the line
+```
+mreq.mr_ifindex = 2;
+```
+with the appropriate interface that should be put into promiscuous mode and recompile the program.
+
+# Promiscuous mode
 
 Depending on your networking configuration, you maybe able to sniff packets destined for other devices by turning on [Promiscuous mode](https://en.wikipedia.org/wiki/Promiscuous_mode). 
 
